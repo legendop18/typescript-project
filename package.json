@@ -2,9 +2,9 @@
   "name": "typescript-project",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "dev": "nodemon index.t"
+    "dev": "nodemon server.ts"
   },
   "keywords": [],
   "author": "",
