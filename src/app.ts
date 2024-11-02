@@ -13,7 +13,7 @@ const app =  express()
 
 app.get("/",(req,res,next)=>{
    const error = createHttpError(500,"error")
-   throw error;
+   throw error
     
 })
 
