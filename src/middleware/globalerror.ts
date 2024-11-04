@@ -1,12 +1,12 @@
 
 import { Response,NextFunction ,Request } from "express"
-import { ApiError } from "../error/apierror"
+import { HttpError } from "http-errors"
 
 export interface customerror extends Error {
         statuscode : number
 }
 
-const globalErrorhandler = (err:ApiError, req:Request,res:any , next:NextFunction)=>{
+const globalErrorhandler = (err:HttpError, req:Request,res:any , next:NextFunction)=>{
         //const statusCode = err.statusCode || 500
         const message = err.message || "Internal Server Error"
         const statuscode = err.statuscode || 500
