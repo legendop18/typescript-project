@@ -1,19 +1,28 @@
 import mongoose, { Schema } from "mongoose";
+
+
+ 
+
 export interface IUser extends Document {
+  _id: any;
   name: string;
   email: string;
-  passwordHash: string;
-  isAdmin: boolean;
+  password: string;
+  role:string;  
+  isverified:boolean
   orders?: mongoose.Schema.Types.ObjectId[];
   cart?: { bookId: mongoose.Schema.Types.ObjectId; quantity: number }[];
   address?: string;
+  refreshtoken:string,
+  otp?:number,
+  otpexpireAt?:number
 }
-
-const UserSchema: Schema = new Schema({
+const UserSchema  = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  passwordHash: { type: String, required: true },
-  isAdmin: { type: Boolean, default: false },
+  password: { type: String, required: true },
+  role: { type: String ,enum : ["Customers","Employee","Admin"] ,default:"Customers"},
+  isverified:{ type: Boolean ,default: false},
   orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }],
   cart: [
     {
@@ -28,8 +37,14 @@ const UserSchema: Schema = new Schema({
     zipCode: { type: String },
     country: { type: String },
   },
+  refreshtoken:{
+    type:String
+  },
+  otp:{type:String },
+  otpexpireAt:{type:Date }
 });
 
 const User = mongoose.model<IUser>('User', UserSchema);
 
 export { User };
+ 

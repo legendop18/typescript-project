@@ -13,9 +13,7 @@ app.use(express.urlencoded({extended:true}))
 
 
 app.get("/",(req,res,next)=>{
-   const error = createHttpError(500,"error")
-   throw error
-    
+      res.json("routes is working") 
 })
 
 

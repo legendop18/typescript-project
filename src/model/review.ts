@@ -8,7 +8,7 @@ export interface IReview extends Document {
     date: Date;
   }
   
-  const ReviewSchema: Schema = new Schema({
+  const ReviewSchema = new Schema({
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     bookId: { type: Schema.Types.ObjectId, ref: 'Book', required: true },
     rating: { type: Number, required: true, min: 1, max: 5 },

@@ -14,7 +14,7 @@ export interface IBook extends Document {
   rating?: number;
 }
 
-const BookSchema: Schema = new Schema<IBook>({
+const BookSchema= new Schema<IBook>({
   title: { type: String, required: true },
   description: { type: String, required: true },
   author: { type: Schema.Types.ObjectId, ref: 'Author', required: true },

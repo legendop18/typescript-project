@@ -9,7 +9,7 @@ export interface IOrder extends Document {
     shippingAddress: string;
   }
   
-  const OrderSchema: Schema = new Schema({
+  const OrderSchema = new Schema({
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     items: [
       {
