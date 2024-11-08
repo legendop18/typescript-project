@@ -65,7 +65,7 @@ const register = async (req:Request,res:Response,next:NextFunction) =>{
     }
 }
 
-const verifyOTP = async (req: Request, res: Response ,next : NextFunction) => {
+const verifyEmail = async (req: Request, res: Response ,next : NextFunction) => {
     const { email, otp } = req.body;
   
     try {
@@ -160,7 +160,7 @@ const logout = async(req:Request,res:Response,next:NextFunction) =>{
       
       // Check if refresh token exists in request
       if (!refreshToken) {
-           throw createHttpError (204,"No content to logout") // No refresh token found, nothing to logout
+        res.status(204).json({ message: 'No content to logout' });// No refresh token found, nothing to logout
       }
   
       // Find the user by refresh token
@@ -170,7 +170,7 @@ const logout = async(req:Request,res:Response,next:NextFunction) =>{
         // Clear any tokens in cookies
         res.clearCookie('accessToken', { httpOnly: true, secure: true });
         res.clearCookie('refreshToken', { httpOnly: true, secure: true });
-          throw createHttpError (204,"User already logged out")
+          throw createHttpError (404,"User already logged out")
       }
   
       // Remove refresh token from user in the database
@@ -181,7 +181,7 @@ const logout = async(req:Request,res:Response,next:NextFunction) =>{
       res.clearCookie('accessToken', { httpOnly: true, secure: true });
       res.clearCookie('refreshToken', { httpOnly: true, secure: true });
   
-      return res.status(200).json({ message: 'Logged out successfully' });
+      res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
       console.error('Logout error:', error);
       next(error)
@@ -205,4 +205,4 @@ const updateprofile = async(req:Request,res:Response,next:NextFunction) =>{
   
 
 
-export {register ,verifyOTP ,login , logout}
+export {register ,verifyEmail ,login , logout}
