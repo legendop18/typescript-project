@@ -2,24 +2,28 @@ import jwt from"jsonwebtoken"
 import { IUser } from "../model/user";
 
 
-
+interface tokenPayload {
+  id:string,
+  email:string,
+  role:string
+}
 
 const accessTokenSecret = process.env.JWT_ACCESS_SECRET as string;
 const refreshTokenSecret = process.env.JWT_REFRESH_SECRET as string;
 
 // Generate Access Token (Short-lived)
-export const generateAccessToken = (user: IUser) => {
+export const generateAccessToken = (payload : tokenPayload) => {
   return jwt.sign(
-    { id: user._id, email: user.email },
+    { id: payload.id, email: payload.email },
     accessTokenSecret,
     { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
   );
 };
 
 // Generate Refresh Token (Long-lived)
-export const generateRefreshToken = (user: IUser) => {
+export const generateRefreshToken = (payload : tokenPayload) => {
   return jwt.sign(
-    { id: user._id ,email:user.email },
+    { id: payload.id ,email:payload.email },
     refreshTokenSecret,
     { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
   );
