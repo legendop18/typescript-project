@@ -28,3 +28,17 @@ const transporter = nodemailer.createTransport({
   
     await transporter.sendMail(mailOptions);
   };
+
+
+
+  export const sendOTPforgot = async(email: string, otp: string) =>{
+    const mailOptions = {
+      from: process.env.SMTP_USER,
+      to: email,
+      subject: 'Password Reset OTP',
+      text: `Your OTP code is: ${otp}\nPlease enter this code within 10 minutes to verify your email.`,
+    };
+    
+    await transporter.sendMail(mailOptions);
+  
+  }

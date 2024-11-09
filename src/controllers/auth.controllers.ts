@@ -3,7 +3,7 @@ import { User } from "../model/user";
 import createHttpError from "http-errors";
 import bcrypt from 'bcrypt'
 import { generateotp, getotpexpire } from "../utils/otputils";
-import { sendOTPEmail } from "../utils/nodemailer";
+import { sendOTPEmail, sendOTPforgot } from "../utils/nodemailer";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
 
 
@@ -51,7 +51,7 @@ const register = async (req:Request,res:Response,next:NextFunction) =>{
 
         
         // SEND EMAIL TO USER TO VERIFY
-        await sendOTPEmail(email,otp)
+        await sendOTPEmail(email,otp.toString())
         
         //response send
         res.status(201).json({
@@ -190,19 +190,83 @@ const logout = async(req:Request,res:Response,next:NextFunction) =>{
 
 
 const forgotpassword = async(req:Request,res:Response,next:NextFunction) =>{
+  try {
+    const { email } = req.body;
 
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw createHttpError(404,"User not found")
+    }
+
+    // Generate OTP and expiration time
+    const otp = generateotp();
+    const otpexpireAt =getotpexpire()
+
+
+    // Update user document
+    user.otp = otp;
+    user.otpexpireAt = otpexpireAt ;
+
+    await user.save();
+
+    // Use sendEmail from emailService
+
+    await sendOTPforgot(email,otp.toString())
+
+    //response
+    res.status(200).json({ message: "OTP sent to email" });
+
+  } catch (error) {
+    console.error("Error in forgotPassword:", error);
+    next()
+  }
 }
 
 
 const resetpassword = async(req:Request,res:Response,next:NextFunction) =>{
+  try {
+    const { email, otp, newPassword } = req.body;
 
+    // Validate input fields
+    if (!email || !otp || !newPassword) {
+      throw createHttpError(400, "Email, OTP, and new password are required");
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw createHttpError(404, "User not found");
+    }
+
+    // Check if OTP is correct and has not expired
+    const currentTime = Date.now();
+    if (user.otp !== otp || !user.otpexpireAt || user.otpexpireAt < currentTime) {
+      throw createHttpError(400, "Invalid or expired OTP");
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update user's password and clear OTP fields
+    user.password = hashedPassword;
+    user.otp = undefined;
+    user.otpexpireAt = undefined;
+    await user.save();
+
+    // Respond with success message
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    console.error("Error in resetPassword:", error);
+    next(error);
+  }
 }
 
 
 const updateprofile = async(req:Request,res:Response,next:NextFunction) =>{
-
+      
 }
   
 
 
-export {register ,verifyEmail ,login , logout}
+export {register ,verifyEmail ,login , logout ,forgotpassword,resetpassword}
