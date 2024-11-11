@@ -22,7 +22,7 @@ const UserSchema  = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String ,enum : ["Customers","Employee","Admin"] ,default:"Customers"},
+  role: { type: String ,enum : ["Customers","Admin"] ,default:"Customers"},
   isverified:{ type: Boolean ,default: false},
   orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }],
   cart: [

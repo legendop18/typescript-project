@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import { Author } from "../model/author";
 import { book } from "../model/book";
 import {  uploadtocloudinary } from "../utils/cloudinary";
+import { User } from "../model/user";
 
 
 
@@ -26,6 +27,9 @@ const createbook = async (req:Request,res:Response,next:NextFunction) =>{
     
     
     try {
+
+
+        
 
         if (!authorname || !authorbio || !authorbirthdate) {
             throw createHttpError(404,"All author fields are required")
@@ -90,6 +94,10 @@ const createbook = async (req:Request,res:Response,next:NextFunction) =>{
         next(error)   
     }
 
+
+};
+
+const getallbook = async(req:Request,res:Response,next:NextFunction)=>{
 
 }
 

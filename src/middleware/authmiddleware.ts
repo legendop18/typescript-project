@@ -34,3 +34,15 @@ export const isAuthenticate = async (req: Request, res: Response, next: NextFunc
         next(error)
     }
 }
+
+
+export const authorizeRoles = (roles: string[]) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+
+        const userrole =  req.user?.role
+      if (!userrole || !roles.includes(userrole)) {
+        return next(createHttpError(403, "Access denied. You do not have permission to perform this action."));
+      }
+      next();
+    };
+  };

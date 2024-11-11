@@ -3,7 +3,7 @@ import { User } from "../model/user";
 export type UserPayload =  {
     id : string,
     email : string,
-    role : string[]
+    role : string
 }
 
 declare global {
