@@ -1,16 +1,16 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IAuthor extends Document {
-  name: string;
-  bio: string;
-  birthDate: Date;
+  authorname: string;
+  authorbio: string;
+  authorbirthdate: Date;
   books?: mongoose.Schema.Types.ObjectId[];
 }
 
 const AuthorSchema = new Schema({
-  name: { type: String, required: true },
-  bio: { type: String, required: true },
-  birthDate: { type: Date, required: true },
+  authorname: { type: String, required: true },
+  authorbio: { type: String, required: true },
+  authorbirthdate: { type: Date, required: true },
   books: [{ type: Schema.Types.ObjectId, ref: "Book" }],
 });
 

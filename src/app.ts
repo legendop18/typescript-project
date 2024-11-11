@@ -1,8 +1,7 @@
 import express from 'express'
 import dotenv from 'dotenv'
-import useroutes from '../src/routes/useroutes'
+
 import globalErrorhandler from './middleware/globalerror'
-import createHttpError from 'http-errors'
 import cookieParser from 'cookie-parser'
 
 
@@ -11,14 +10,19 @@ const app =  express()
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+app.use(express.static("public/data"))
 app.use(cookieParser())
 
 app.get("/",(req,res,next)=>{
       res.json("routes is working") 
 })
 
+import useroutes from './routes/useroutes'
+import bookroute from './routes/bookroutes'
 
-app.use(useroutes)
+
+app.use("/api/auth",useroutes)
+app.use("/api/book",bookroute)
 
 
 

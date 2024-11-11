@@ -26,7 +26,7 @@ const register = async (req:Request,res:Response,next:NextFunction) =>{
             throw createHttpError(400,"User Already Registered")
         }
 
-
+        
         //hash the password
         const passwordhash = await bcrypt.hash(password,10)
 
@@ -263,10 +263,6 @@ const resetpassword = async(req:Request,res:Response,next:NextFunction) =>{
 }
 
 
-const updateprofile = async(req:Request,res:Response,next:NextFunction) =>{
-      
-}
-  
 
 
 export {register ,verifyEmail ,login , logout ,forgotpassword,resetpassword}

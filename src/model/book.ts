@@ -8,8 +8,7 @@ export interface IBook extends Document {
   price: number;
   stock: number;
   publishedDate: Date;
-  isbn: string;
-  coverImageUrl?: string;
+  coverImage?: string;
   reviews?: mongoose.Schema.Types.ObjectId[];
   rating?: number;
 }
@@ -22,10 +21,12 @@ const BookSchema= new Schema<IBook>({
   price: { type: Number, required: true },
   stock: { type: Number, required: true },
   publishedDate: { type: Date, required: true },
-  coverImageUrl: { type: String },
+  coverImage: { type: String },
   reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
   rating: { type: Number, default: 0 },
 });
+
+
 
 const book = mongoose.model<IBook>('Book', BookSchema);
 export {book}
