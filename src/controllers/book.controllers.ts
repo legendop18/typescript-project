@@ -3,7 +3,7 @@ import createHttpError from "http-errors";
 import { Author } from "../model/author";
 import { book } from "../model/book";
 import {  uploadtocloudinary } from "../utils/cloudinary";
-import { User } from "../model/user";
+
 
 
 
@@ -98,8 +98,43 @@ const createbook = async (req:Request,res:Response,next:NextFunction) =>{
 };
 
 const getallbook = async(req:Request,res:Response,next:NextFunction)=>{
+    try {
+        const searchquery = req.query.search || ""
+        const sortfield = req.query.sort || "title"
+        const sortorder = req.query.order ==="desc" ? -1:1 //default sort in ascending order
 
+        //bulid the search filter for title , category
+        const filter = {
+             $or:[
+                {title :new RegExp(searchquery as string || "i")},
+                {category :new RegExp(searchquery as string || "i")}
+             ]
+        };
+        
+        // Query the database with sorting...
+        const Books = await book.find(filter)
+        .sort({[sortfield as string]:sortorder})
+
+        //Send the filtered and sorted books as a response
+        res.status(201).json({
+            success:true,
+            message:"book retrieved successfully",
+            Books
+        })
+
+    } catch (error) {
+        console.log("getallbook error",error);
+        next(error)
+        
+    };
+
+
+
+
+}
+const getAuthorById = async(req:Request,res:Response,next:NextFunction)=>{
+    
 }
 
 
-export {createbook}
+export {createbook,getallbook}
