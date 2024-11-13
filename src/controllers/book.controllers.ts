@@ -121,6 +121,10 @@ const getallbook = async(req:Request,res:Response,next:NextFunction)=>{
         const Books = await book.find(filter)
         .sort({[sortfield as string]:sortorder})
 
+        if(!Books){
+            throw createHttpError(400,"book not found")
+        }
+
         //Send the filtered and sorted books as a response
         res.status(201).json({
             success:true,
@@ -135,8 +139,6 @@ const getallbook = async(req:Request,res:Response,next:NextFunction)=>{
     };
 
 
-
-
 }
 const getbookById = async(req:Request,res:Response,next:NextFunction)=>{
     const bookId = req.params.bookId;
@@ -148,7 +150,7 @@ const getbookById = async(req:Request,res:Response,next:NextFunction)=>{
     };
 
     //find the book by id and 
-    const Book = book.findById(bookId)
+    const Book = await book.findById(bookId)
     .populate("author")
 
     //if the book is found 
