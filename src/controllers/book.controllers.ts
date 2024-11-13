@@ -3,7 +3,7 @@ import createHttpError from "http-errors";
 import { Author } from "../model/author";
 import { book } from "../model/book";
 import { deleteFromCloudinary ,uploadtocloudinary } from "../utils/cloudinary";
-
+import fs from 'fs'
 
 
 
@@ -47,7 +47,7 @@ const createbook = async (req:Request,res:Response,next:NextFunction) =>{
          
         // if author doesn't exist then create new author
         if(!author){
-            const author = await Author.create({
+             author = await Author.create({
              authorname,
              authorbio,
              authorbirthdate
@@ -92,6 +92,14 @@ const createbook = async (req:Request,res:Response,next:NextFunction) =>{
         })
     } catch (error) {
         console.log("create book error",error);
+
+
+        if (req.file?.path) {
+            fs.promises.unlink(req.file.path)
+                .then(() => console.log("Temporary file deleted"))
+                .catch((unlinkError) => console.log("Failed to delete temporary file", unlinkError));
+        }
+
         next(error)   
     }
 
