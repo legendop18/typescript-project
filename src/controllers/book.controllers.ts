@@ -30,20 +30,15 @@ const createbook = async (req:Request,res:Response,next:NextFunction) =>{
 
 
         
-
+        // if field fill or not
         if (!authorname || !authorbio || !authorbirthdate) {
             throw createHttpError(404,"All author fields are required")
         }
 
-        if(!authorname){
-            throw createHttpError(400,"Author name is required")
-        }
-
         
-        
-
+        // find the author
         let author = await Author.findOne({ authorname})
-         console.log(author);
+       
          
         // if author doesn't exist then create new author
         if(!author){
@@ -60,15 +55,15 @@ const createbook = async (req:Request,res:Response,next:NextFunction) =>{
         
         const coverImage = req.file?.path as string
 
-
+        // check the image upload or not
         if(!coverImage){
             throw createHttpError(400,"upload the coverimage")
         }
 
-
+        //upload to cloudinary
         const uploadcoverimage = await uploadtocloudinary(coverImage)
 
-        
+        //create book
         const Book = await book.create({
             title,
             description,
@@ -83,9 +78,11 @@ const createbook = async (req:Request,res:Response,next:NextFunction) =>{
 
         await Book.save()
 
+        // ddd the book to the author's list of books
         author?.books?.push(Book.id)
         await author?.save();
 
+        // send response 
         res.status(201).json({
             success:true,
             message:"Book Created Successfully"
