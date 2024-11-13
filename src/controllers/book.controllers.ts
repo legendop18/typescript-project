@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import { Author } from "../model/author";
 import { book } from "../model/book";
-import {  uploadtocloudinary } from "../utils/cloudinary";
+import { deleteFromCloudinary ,uploadtocloudinary } from "../utils/cloudinary";
 
 
 
@@ -56,6 +56,7 @@ const createbook = async (req:Request,res:Response,next:NextFunction) =>{
             await author.save()
         }
 
+        
         
         const coverImage = req.file?.path as string
 
@@ -132,9 +133,121 @@ const getallbook = async(req:Request,res:Response,next:NextFunction)=>{
 
 
 }
-const getAuthorById = async(req:Request,res:Response,next:NextFunction)=>{
-    
+const getbookById = async(req:Request,res:Response,next:NextFunction)=>{
+    const bookId = req.params.bookId;
+
+    console.log(bookId)
+
+    if(!bookId){
+       throw createHttpError(400,"book id is required")
+    };
+
+    //find the book by id and 
+    const Book = book.findById(bookId)
+    .populate("author")
+
+    //if the book is found 
+    if(!Book){
+        throw createHttpError(404,"book not found")
+    }
+
+
+    //send response 
+    res.status(201).json({
+        success:true,
+        Book
+    })
 }
 
+const updatebook = async(req:Request,res:Response,next:NextFunction)=>{
+    try {
+        const { bookId } = req.params;  // Get book ID from route parameters
+        const updateData = req.body;  // Updated data from the request body
 
-export {createbook,getallbook}
+        
+        //if the book found
+        if(!bookId ){
+            throw createHttpError(404,"Book Id is required")
+        };
+
+        const bookToUpdate = await book.findById(bookId);
+        if (!bookToUpdate) {
+            return next(createHttpError(404, "Book not found"));
+        }
+
+
+        if(req.file?.path){
+            const uploadimage = await uploadtocloudinary(req.file.path)
+            updateData.coverImage = uploadimage?.secure_url
+        }
+
+        // Find the book by ID and update with new data
+        const updatedBook = await book.findByIdAndUpdate(
+            bookId,
+            updateData,
+            { new: true} // Options: return updated book 
+        ).populate("author", "name bio birthDate"); // Optionally populate author fields
+
+        
+        // response 
+
+        res.status(200).json({
+            success: true,
+            message: "Book updated successfully",
+            book: updatedBook
+        });
+    } catch (error) {
+        console.error("Error in updateBook:", error);
+        next(error); // Pass error to error handler middleware
+    }
+}
+
+const deletebook = async(req:Request,res:Response,next:NextFunction)=>{
+    try {
+        const { bookId } = req.params; // Get book ID from route parameters
+
+
+        //if the book found
+        if(!bookId ){
+            throw createHttpError(404,"book Id is required")
+        };
+
+        const Book = await book.findById(bookId);
+        if (!Book) {
+            throw createHttpError(404, "Book not found");
+        }
+
+
+        const coverImageUrl = Book.coverImage;
+
+        // If there is a cover image URL, delete it from Cloudinary
+        if (coverImageUrl) {
+            const publicId = coverImageUrl.split("/").pop()?.split(".")[0];  // Extract public ID from URL
+            if (publicId) {
+                await deleteFromCloudinary(publicId);  // Call utility function to delete the image
+            }
+        }
+
+        // Find and delete the book by ID
+        const deletedBook = await book.findByIdAndDelete(bookId);
+
+       
+
+        res.status(200).json({
+            success: true,
+            message: "Book deleted successfully",
+            deletedBook
+        });
+    } catch (error) {
+        console.error("Error in deleteBook:", error);
+        next(error); // Pass error to error handler middleware
+    }
+
+}
+
+// const searchbook = async(req:Request,res:Response,next:NextFunction)=>{
+
+// }
+
+
+export {createbook,getallbook,getbookById,updatebook,deletebook}

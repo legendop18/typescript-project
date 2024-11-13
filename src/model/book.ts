@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IBook extends Document {
+  _id: any;
   title: string;
   description: string;
   author: mongoose.Schema.Types.ObjectId;
