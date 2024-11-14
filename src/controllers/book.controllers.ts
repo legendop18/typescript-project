@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import { Author } from "../model/author";
 import { book } from "../model/book";
-import { deleteFromCloudinary ,uploadtocloudinary } from "../utils/cloudinary";
+import { deleteFromCloudinary ,Folders,uploadtocloudinary } from "../utils/cloudinary";
 import fs from 'fs'
 
 
@@ -22,13 +22,11 @@ import fs from 'fs'
   
 
 const createbook = async (req:Request,res:Response,next:NextFunction) =>{
+
     const {title,description,authorname,authorbio,authorbirthdate,category,price,stock,publishedDate} = req.body
 
-    
-    
+
     try {
-
-
         
         // if field fill or not
         if (!authorname || !authorbio || !authorbirthdate) {
@@ -51,18 +49,36 @@ const createbook = async (req:Request,res:Response,next:NextFunction) =>{
             await author.save()
         }
 
+        const existingBook = await book.findOne({ title, author: author._id });
+        if (existingBook) {
+            throw createHttpError(409,"Book with this title and author already exists")
+        }
         
-        
-        const coverImage = req.file?.path as string
+        let coverImageUrl: string | undefined;
+        let pdfUrls: string | undefined;
 
-        // check the image upload or not
-        if(!coverImage){
-            throw createHttpError(400,"upload the coverimage")
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        
+        // Process cover image if it exists
+        if (req.files && 'coverImage' in req.files && Array.isArray(req.files.coverImage)) {
+            const coverImage = req.files.coverImage[0].path;
+            const uploadImage = await uploadtocloudinary(coverImage, Folders.coverImage);
+            coverImageUrl = uploadImage?.secure_url;
         }
 
-        //upload to cloudinary
-        const uploadcoverimage = await uploadtocloudinary(coverImage)
+        // Process PDF if it exists
+        if (req.files && 'pdfurl' in req.files && Array.isArray(req.files.pdfurl)) {
+            const pdf = req.files.pdfurl[0].path;
+            const uploadPdf = await uploadtocloudinary(pdf, Folders.pdfurl);
+            pdfUrls = uploadPdf?.secure_url;
+        }
 
+            console.log(pdfUrls)
+           
+            
+        if(!title || !description ||!category||!price ||!stock|| !publishedDate ||!coverImageUrl || !pdfUrls  ){
+            throw createHttpError(404,"ALL field are required!!")
+        }
         //create book
         const Book = await book.create({
             title,
@@ -71,7 +87,8 @@ const createbook = async (req:Request,res:Response,next:NextFunction) =>{
             price,
             stock,
             publishedDate,
-            coverImage : uploadcoverimage?.url,
+            coverImage : coverImageUrl,
+            pdfurl : pdfUrls,
             author : author?.id
             
         });
@@ -90,16 +107,20 @@ const createbook = async (req:Request,res:Response,next:NextFunction) =>{
     } catch (error) {
         console.log("create book error",error);
 
-
-        if (req.file?.path) {
-            fs.promises.unlink(req.file.path)
-                .then(() => console.log("Temporary file deleted"))
-                .catch((unlinkError) => console.log("Failed to delete temporary file", unlinkError));
+        // Delete temporary files only if there was an error
+        if (req.files && (req.files as any).coverImage) {
+            await fs.promises.unlink((req.files as any).coverImage[0].path).catch(unlinkError =>
+                console.error("Failed to delete temporary cover image file", unlinkError)
+            );
+        }
+        if (req.files && (req.files as any).pdfurl) {
+            await fs.promises.unlink((req.files as any).pdfurl[0].path).catch(unlinkError =>
+                console.error("Failed to delete temporary PDF file", unlinkError)
+            );
         }
 
         next(error)   
     }
-
 
 };
 
@@ -183,9 +204,17 @@ const updatebook = async(req:Request,res:Response,next:NextFunction)=>{
         }
 
 
-        if(req.file?.path){
-            const uploadimage = await uploadtocloudinary(req.file.path)
-            updateData.coverImage = uploadimage?.secure_url
+        if (req.files && 'coverImage' in req.files && Array.isArray(req.files.coverImage)) {
+            const coverImage = req.files.coverImage[0].path;
+            const uploadImage = await uploadtocloudinary(coverImage, Folders.coverImage);
+            updateData.pdfurl= uploadImage?.secure_url;
+        }
+
+        // Process PDF if it exists
+        if (req.files && 'pdfurl' in req.files && Array.isArray(req.files.pdfurl)) {
+            const pdf = req.files.pdf[0].path;
+            const uploadPdf = await uploadtocloudinary(pdf, Folders.pdfurl);
+            updateData.pdfurl = uploadPdf?.secure_url;
         }
 
         // Find the book by ID and update with new data
@@ -193,8 +222,9 @@ const updatebook = async(req:Request,res:Response,next:NextFunction)=>{
             bookId,
             updateData,
             { new: true} // Options: return updated book 
-        ).populate("author", "name bio birthDate"); // Optionally populate author fields
+        ) //.populate("author", "name bio birthDate"); // Optionally populate author fields
 
+        console.log();
         
         // response 
 
@@ -205,6 +235,17 @@ const updatebook = async(req:Request,res:Response,next:NextFunction)=>{
         });
     } catch (error) {
         console.error("Error in updateBook:", error);
+        // Delete temporary files only if there was an error
+        if (req.files && (req.files as any).coverImage) {
+            await fs.promises.unlink((req.files as any).coverImage[0].path).catch(unlinkError =>
+                console.error("Failed to delete temporary cover image file", unlinkError)
+            );
+        }
+        if (req.files && (req.files as any).pdfurl) {
+            await fs.promises.unlink((req.files as any).pdfurl[0].path).catch(unlinkError =>
+                console.error("Failed to delete temporary PDF file", unlinkError)
+            );
+        }
         next(error); // Pass error to error handler middleware
     }
 }

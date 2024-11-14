@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IAuthor extends Document {
+  _id: any;
   authorname: string;
   authorbio: string;
   authorbirthdate: Date;

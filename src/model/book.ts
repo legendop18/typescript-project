@@ -10,6 +10,7 @@ export interface IBook extends Document {
   stock: number;
   publishedDate: Date;
   coverImage?: string;
+  pdfurl: string;
   reviews?: mongoose.Schema.Types.ObjectId[];
   rating?: number;
 }
@@ -23,6 +24,7 @@ const BookSchema= new Schema<IBook>({
   stock: { type: Number, required: true },
   publishedDate: { type: Date, required: true },
   coverImage: { type: String },
+  pdfurl:{type:String},
   reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
   rating: { type: Number, default: 0 },
 });

@@ -14,15 +14,20 @@ const option  = {
 cloudinary.config(option)
 
 
+export const Folders : {pdfurl : string,coverImage : string} = {
+    pdfurl :"Pdfurl",
+    coverImage : "coverImage"
+}
 
 
-const uploadtocloudinary = async(localfilepath :string)=>{
+
+const uploadtocloudinary = async(localfilepath :string,folder :string)=>{
     try {
         if(!localfilepath) return null
 
         const response = await cloudinary.uploader.upload(localfilepath,{
-            
-            resource_type:"image"
+            folder:folder,
+            resource_type:"auto"
         })
 
         console.log("uploaded to cloudinary !!", response.url);
