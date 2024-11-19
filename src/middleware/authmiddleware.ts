@@ -1,4 +1,4 @@
-import { json ,NextFunction  ,Request ,Response } from "express"
+import { NextFunction  ,Request ,Response } from "express"
 import createHttpError from "http-errors"
 import jwt,{ JwtPayload  } from "jsonwebtoken"
 import { UserPayload } from "../@types/types"

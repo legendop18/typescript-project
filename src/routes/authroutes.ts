@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { login, logout, register, verifyEmail} from "../controllers/auth.controllers";
+import { forgotpassword, login, logout, register, resetpassword, verifyEmail} from "../controllers/auth.controllers";
 
 
 const router = Router()
@@ -11,6 +11,9 @@ router.route("/logout").post(logout)
 
 //password reset and verification routes
 router.route("/verify-email").post(verifyEmail)
+router.route("/forgotpassword").post(forgotpassword)
+router.route("/resetpassword").post(resetpassword)
+
 
 
 

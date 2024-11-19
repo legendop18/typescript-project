@@ -1,5 +1,5 @@
 import jwt from"jsonwebtoken"
-import { IUser } from "../model/user";
+
 
 
 interface tokenPayload {

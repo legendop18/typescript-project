@@ -3,10 +3,10 @@ import dotenv from "dotenv"
 dotenv.config()
 
 const transporter = nodemailer.createTransport({
-    
+   
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT as string, 10),
-    secure:false,
+    secure:true,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -24,6 +24,12 @@ const transporter = nodemailer.createTransport({
       to: email,
       subject: 'Verify Your Account - OTP',
       text: `Your OTP code is: ${otp}\nPlease enter this code within 10 minutes to verify your email.`,
+      html: `<p>Your OTP code is:${otp} </p>`,
+      headers: {
+        'X-Priority': '1', // Set high priority
+        'X-MSMail-Priority': 'High', // For older clients like Outlook
+        'Importance': 'High',
+    },
     };
   
     await transporter.sendMail(mailOptions);

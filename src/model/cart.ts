@@ -1,33 +1,54 @@
-import mongoose, { Schema } from "mongoose";
-import { Cartitem, Icartitem } from "./cartitem";
+import mongoose, { Schema, Document } from "mongoose";
 
-export interface Icart extends Document{
-    userId : mongoose.Schema.Types.ObjectId;
-    items:  Icartitem[];
-    totalprice : number;
+// Define the interface for the Cart model
+export interface ICart extends Document {
+    userId: mongoose.Schema.Types.ObjectId; // User who owns the cart
+    items: { 
+        bookId: mongoose.Schema.Types.ObjectId; // Book added to the cart
+        quantity: number;
+        price: number;
+    }[]; // List of items in the cart
+    totalPrice: number; // Total price of the cart
 }
-const cartschema = new Schema({
-    userId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User",
-        required:true
+
+// Define the schema for the Cart
+const CartSchema = new Schema<ICart>({
+    userId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "User", 
+        required: true 
     },
-    items:{
-        type : Cartitem,
-    },
-    totalprice:{
-        type:Number,
-        default :  0
+    items: [
+        {
+            bookId: { 
+                type: mongoose.Schema.Types.ObjectId, 
+                ref: "book", 
+                required: true 
+            },
+            quantity: { 
+                type: Number, 
+                required: true, 
+                min: 1 
+            },
+            price: { 
+                type: Number, 
+                required: true 
+            }
+        }
+    ],
+    totalPrice: { 
+        type: Number, 
+        required: true, 
+        default: 0 
     }
-})
+});
 
-
-cartschema.pre<Icart>('save', async function (next) {
-    // Ensure `items` array is accessible and calculate total price
-    this.totalprice = await this.items ? this.items.reduce((total, item) => total + item.price * item.quantity, 0) : 0;
+CartSchema.pre("save", function (next) {
+    this.totalPrice = this.items.reduce((total, item) => total + (item.price * item.quantity), 0);
     next();
-  });
+});
 
-const Cart = mongoose.model("Cart",cartschema)
+// Create the Cart model
+const Cart = mongoose.model<ICart>("Cart", CartSchema);
 
-export {Cart}
+export default Cart;

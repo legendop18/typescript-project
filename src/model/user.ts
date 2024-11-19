@@ -16,6 +16,9 @@ export interface IUser extends Document {
   refreshtoken:string,
   otp?:number,
   otpexpireAt?:number,
+  resetotp?:number,
+  resetotpexpireAt?:number
+ 
   
 }
 const UserSchema  = new Schema({
@@ -42,7 +45,9 @@ const UserSchema  = new Schema({
     type:String
   },
   otp:{type:Number },
-  otpexpireAt:{type:Number }
+  otpexpireAt:{type:Number },
+  resetotp:{type:Number},
+  resetotpexpireAt:{type:Number },
 });
 
 const User = mongoose.model<IUser>('User', UserSchema);

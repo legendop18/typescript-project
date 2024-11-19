@@ -20,13 +20,15 @@ app.get("/",(req,res,next)=>{
 
 
 //routes--------
-import useroutes from './routes/useroutes'
+import authroute from './routes/authroutes'
 import bookroute from './routes/bookroutes'
 import authorroute from './routes/authorroute'
+import orderroute from './routes/orderroute'
 
-app.use("/api/auth",useroutes)
+app.use("/api/auth",authroute)
 app.use("/api/book",bookroute)
 app.use("/api/author",authorroute)
+app.use("/api/order",orderroute)
 
 
 // global error handler
