@@ -91,8 +91,6 @@ const verifyEmail = async (req: Request, res: Response ,next : NextFunction) => 
         throw  createHttpError(400,"Invalid OTP")
       }
 
-      
-      
   
       // Check if OTP is expired
       if (user.otpexpireAt && user.otpexpireAt < new Date().getTime()) {
@@ -100,7 +98,6 @@ const verifyEmail = async (req: Request, res: Response ,next : NextFunction) => 
         throw  createHttpError(400," OTP expired")
       }
   
-
       // Mark user as verified
       user.isverified = true;
       user.otp = undefined;
@@ -130,7 +127,7 @@ const verifyEmail = async (req: Request, res: Response ,next : NextFunction) => 
 
       const existinguser = await  User.findOne({email})
 
-      if(!existinguser || existinguser.role.includes("Admin")){
+      if(!existinguser ){
         throw createHttpError(400,"User not found,sigup first")
       }
 
@@ -152,11 +149,13 @@ const verifyEmail = async (req: Request, res: Response ,next : NextFunction) => 
       const accessToken = generateAccessToken(payload);
       const refreshToken = generateRefreshToken(payload)
 
-      existinguser.refreshtoken = refreshToken
-      await existinguser.save()
 
       res.cookie("refreshToken",refreshToken,{httpOnly:true,secure:true})
 
+      
+      existinguser.refreshtoken = refreshToken
+      await existinguser.save()
+      
       res.status(201).json({
         success:true,
         message:"User loggedin successfully",
@@ -172,10 +171,6 @@ const logout = async(req:Request,res:Response,next:NextFunction) =>{
     try {
       const refreshToken = req.cookies?.refreshToken;
       
-      // Check if refresh token exists in request
-      if (!refreshToken) {
-        res.status(204).json({ message: 'No content to logout' });// No refresh token found, nothing to logout
-      }
   
       // Find the user by refresh token
       const user = await User.findOne({ refreshtoken: refreshToken });
@@ -187,13 +182,15 @@ const logout = async(req:Request,res:Response,next:NextFunction) =>{
           throw createHttpError (404,"User already logged out")
       }
   
-      // Remove refresh token from user in the database
-      user.refreshtoken = '';
-      await user.save();
   
       // Clear tokens from cookies
       res.clearCookie('accessToken', { httpOnly: true, secure: true });
       res.clearCookie('refreshToken', { httpOnly: true, secure: true });
+
+      
+      // Remove refresh token from user in the database
+      user.refreshtoken = '';
+      await user.save();
   
       res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
@@ -247,9 +244,6 @@ const resetpassword = async(req:Request,res:Response,next:NextFunction) =>{
       throw createHttpError(400, "Email, otp, and new password are required");
     }
 
-    
-    
-      
 
     // Find user by email
     const user = await User.findOne({ email });
