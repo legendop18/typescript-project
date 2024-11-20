@@ -14,7 +14,7 @@ const registeradmin = async(req:Request,res:Response,next:NextFunction)=>{
         if(!name||!email||!password){
             throw createHttpError(404,"invalid credentials")
         }
-        const existingadmin = await Admin.findOne(email)
+        const existingadmin = await Admin.findOne({email})
 
         if(existingadmin){
             throw createHttpError(400,"Admin alreadu registered")

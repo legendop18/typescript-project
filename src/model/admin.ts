@@ -6,7 +6,7 @@ export interface Iadmin extends Document{
     email:string,
     password:string,
     role:string,
-    // refreshtoken:string,
+    refreshtoken:string,
 }
 
 
@@ -29,10 +29,13 @@ const adminschema = new Schema({
         type:String,
         default:"admin"
     },
+    refreshtoken:{
+        type:String
+    }
     
 
 })
 
-const Admin = mongoose.model("Admin",adminschema)
+const Admin = mongoose.model<Iadmin>("Admin",adminschema)
 
 export{Admin}
