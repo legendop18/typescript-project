@@ -24,13 +24,15 @@ import authroute from './routes/authroutes'
 import bookroute from './routes/bookroutes'
 import authorroute from './routes/authorroute'
 import orderroute from './routes/orderroute'
-import adminroute from './routes/admin'
+import adminroute from './routes/adminroute'
+import reviewroute from './routes/reviews'
 
 app.use("/api/auth",authroute)
 app.use("/api/book",bookroute)
 app.use("/api/author",authorroute)
 app.use("/api/order",orderroute)
 app.use("/api/admin",adminroute)
+app.use("/api/reviews",reviewroute)
 
 // global error handler
 app.use(globalErrorhandler)
