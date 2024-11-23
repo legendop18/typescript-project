@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { Order } from "../model/order";
+import razorpayinstance from "../utils/razorpay";
 import createHttpError from "http-errors";
-import {  book } from "../model/book";
+import { book } from "../model/book";
 
 
 const createorder = async (req:Request,res:Response,next:NextFunction)=>{
@@ -34,6 +35,14 @@ const createorder = async (req:Request,res:Response,next:NextFunction)=>{
           await Book.save();
       }
 
+      const options ={
+        amount:totalPrice * 100,
+        currency:"INR",
+        receipt:""
+      }
+      
+      const razorpayorder = await  razorpayinstance.orders.create(options)
+
       // Create the order
       const newOrder = new Order({
           userId,
@@ -42,6 +51,7 @@ const createorder = async (req:Request,res:Response,next:NextFunction)=>{
           shippingAddress,
           status: 'pending', // Initially set to 'pending'
           orderDate: new Date(),
+          
       });
 
       // Save the order to the database

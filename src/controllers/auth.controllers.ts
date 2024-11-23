@@ -6,7 +6,7 @@ import { generateotp, getotpexpire } from "../utils/otputils";
 import { sendOTPEmail, sendOTPforgot } from "../utils/nodemailer";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import jwt ,{JwtPayload} from "jsonwebtoken";
-import { log } from "console";
+
 
 
 const register = async (req:Request,res:Response,next:NextFunction) =>{

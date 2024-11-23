@@ -7,6 +7,12 @@ export interface IOrder extends Document {
     orderDate: Date;
     status: 'pending' | 'shipped' | 'delivered' | 'canceled';
     shippingAddress: string;
+    paymentDetails:{
+      orderId: string,
+      paymentId?:string,
+      signature?:string,
+      status : 'pending'|'paid'|'failed'
+    }
   }
   
   const OrderSchema = new Schema({
@@ -28,6 +34,16 @@ export interface IOrder extends Document {
       zipCode: { type: String },
       country: { type: String },
     },
+    paymentDetails:{
+      orderId: {type:String,required:true},
+      paymentId:{type:String},
+      signature:{type:String},
+      status:{
+        type:String,
+        enum: ['pending','paid','failed'],
+        default:"pending"
+      }
+    }
   });
   
 const Order = mongoose.model<IOrder>('Order', OrderSchema);
